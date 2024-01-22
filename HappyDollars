@@ -1,0 +1,49 @@
+#include <amxmodx>
+#include <fun>
+
+new cvar_hfh_gold_coins;
+new cvar_hfh_silver_coins;
+
+native set_gold_coins( iPlugin, iParams );
+native set_silver_coins( iPlugin, iParams );
+native get_gold_coins(id);
+native get_silver_coins( id );
+public plugin_init() {
+    register_plugin("Happy Frag Hour", "1.1", "somedude")
+
+    cvar_hfh_gold_coins = register_cvar("hfh_gold_coins", "10")
+    cvar_hfh_silver_coins = register_cvar("hfh_silver_coins", "10")
+
+    set_task(60.0 * 60.0,"HappyHourTimer", _, _, _, "b");
+}
+
+public HappyHourReward(id) {
+    new gold_coins = get_pcvar_num(cvar_hfh_gold_coins);
+    new silver_coins = get_pcvar_num(cvar_hfh_silver_coins);
+    client_print(id, print_chat, "[Happy Hour] Felicitări! Ai primit %d gold  coins %d în timpul Happy Hour!", gold_coins,silver_coins);
+    set_gold_coins(id, get_gold_coins(id) + gold_coins);
+    set_silver_coins(id, get_silver_coins(id) + silver_coins);
+
+
+}
+
+public HappyHourTimer() {
+    new randPlayer = findRandomPlayer();
+    if (is_user_connected(randPlayer) && !is_user_bot(randPlayer)) {
+        HappyHourReward(randPlayer);
+    }
+    return PLUGIN_CONTINUE;
+}
+
+
+findRandomPlayer() {
+    new players[32], count;
+    get_players(players, count, "a");
+
+    if (count > 0) {
+        new randIndex = random_num(0, count - 1);
+        return players[randIndex];
+    }
+
+    return 0;
+}
